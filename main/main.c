@@ -20,7 +20,7 @@ const int LED_PIN_G = 11;
 const int LED_PIN_B = 12;
 const int LED_PIN_Y = 13;
 
-const int BUZZER = 18; /* eh 17 o certo */
+const int BUZZER = 17; /* eh 17 o certo */
 
 volatile int BTN_FLAG_R = 0;
 volatile int BTN_FLAG_G = 0;
@@ -143,6 +143,7 @@ int main() {
 
     while (true) {
         gera_sequencia_aleatoria(dificuldade, sequencia);
+        btn_id = 4;
 
         for (int i = 0; i < dificuldade; i++){
             if (sequencia[i] == 0){
@@ -178,33 +179,34 @@ int main() {
         int tentativas = 0;
         int errouu = 0;
         while (tentativas < dificuldade){
-          if (btn_id == 0){
+          while(btn_id != 4){
+            if (btn_id == 0){
               gpio_put(LED_PIN_R, 1);
-              gera_tom_R();
+              sleep_ms(500);
               gpio_put(LED_PIN_R, 0);
           }
 
           else if (btn_id == 1){
               gpio_put(LED_PIN_G, 1);
-              gera_tom_G();
+              sleep_ms(500);
               gpio_put(LED_PIN_G, 0);
           }
 
           else if (btn_id == 2){
               gpio_put(LED_PIN_B, 1);
-              gera_tom_B();
+              sleep_ms(500);
               gpio_put(LED_PIN_B, 0);
           }
 
           else if (btn_id == 3){
               gpio_put(LED_PIN_Y, 1);
-              gera_tom_Y();
+              sleep_ms(500);
               gpio_put(LED_PIN_Y, 0);
           }
-          while(btn_id != 4){
             if (btn_id != sequencia[tentativas]){
                   errouu = 1;
                   gera_tom_erro();
+                  break;
               }
             else{
                   gera_tom_acerto();
@@ -212,11 +214,31 @@ int main() {
             btn_id = 4;
             tentativas++;
           }
+          if (errouu){
+            dificuldade = 1;
+            break;
+          }
         }
-        if (errouu)
+        if (errouu){
+          for(int i = 0; i < 3; i++){
+            gpio_put(LED_PIN_R, 1);
+            gpio_put(LED_PIN_G, 1);
+            gpio_put(LED_PIN_B, 1);
+            gpio_put(LED_PIN_Y, 1);
+            sleep_ms(500);
+            gpio_put(LED_PIN_R, 0);
+            gpio_put(LED_PIN_G, 0);
+            gpio_put(LED_PIN_B, 0);
+            gpio_put(LED_PIN_Y, 0);
+            sleep_ms(500);
+          }
+
           dificuldade = 1 ;
+        }
         else
           dificuldade++;
+        
+        sleep_ms(1000);
         
 
     }
